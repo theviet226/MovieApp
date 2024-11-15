@@ -26,7 +26,7 @@ const Cast: React.FC<CastProps> = ({cast}) => {
               <View style={styles.imgContent}>
                 <Image
                   style={styles.image}
-                  source={require('../../asset/images/cast.webp')}
+                  source={require('../../asset/images/person3.jpg')}
                 />
               </View>
               <Text style={styles.character}>

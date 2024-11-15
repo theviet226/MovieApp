@@ -25,7 +25,7 @@ const HomeScreen : React.FC = () => {
           contentContainerStyle={{ paddingBottom: 10 }}>
           <TrendingMovies data={trending} />
           <MovieList title='Upcoming' data = {upComing}/>
-          <MovieList title='Toprate' data = {topRated}/>
+          <MovieList title='Toprated' data = {topRated}/>
 
         </ScrollView>
       </View>

@@ -27,7 +27,7 @@ const BottomTab = () => {
           fontSize: 12,
           fontWeight: 'bold',
         },
-        tabBarActiveTintColor: '#3498db',
+        tabBarActiveTintColor: '#eab308',
         tabBarInactiveTintColor: '#7f8c8d',
       }}>
       <Tab.Screen

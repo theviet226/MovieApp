@@ -23,7 +23,7 @@ const MovieScreen = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const navigation = useNavigation();
   const [cast, setCast] = useState([1,2,3,4,5])
-  const [similatorMovie, set] = useState([1,2,3,4,5])
+  const [similatorMovie, setSimilatorMovie] = useState([1,2,3,4,5]);
 
   
   useEffect(() => {
@@ -34,7 +34,7 @@ const MovieScreen = () => {
   return (
     <ScrollView
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{paddingHorizontal: 0}}
+      contentContainerStyle={{paddingBottom: 10}}
       style={styles.container}>
       <View style={styles.content}>
         <SafeAreaView style={styles.header}>
@@ -95,7 +95,7 @@ const MovieScreen = () => {
 
         <Cast cast= {cast} />
 
-        <MovieList title='Similator Movie' data={similatorMovie}/>
+        <MovieList title='Similator Movie' hiddenSeeAll={true} data={similatorMovie}/>
       </View>
     </ScrollView>
   );
