@@ -1,5 +1,5 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,20 +12,42 @@ import {
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MovieList from '../components/movieList';
+import { fetchPersonDetail, fetchPersonMoive, image342 } from '../api/moviedb';
 
-var {width, height} = Dimensions.get('window');
+type RootStackParamList = {
+  person : {id:number}
+}
 
 const PersonScreen = ({}) => {
-  // const {person} = route.params;
+  // const {person:item} = route.params;
+  const route = useRoute<RouteProp<RootStackParamList, 'Person'>>();
+  const { person: item } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const navigation = useNavigation();
-  const [personMoive, setPersonMovie] = useState([1, 2, 3, 4, 5]);
+  const [person,setPerson] = useState([])
+  const [personMoive, setPersonMovie] = useState([]);
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
+  useEffect(() => {
+    getPersonDetail(item.id)
+    getPersonMoive(item.id)
+    console.log('id',item.id)
+  },[item])
+  const getPersonDetail = async (id:number) => {
+    const data = await fetchPersonDetail(id)
+    if(data) setPerson(data)
+  } 
+  const getPersonMoive = async (id:number) => {
+    const data = await fetchPersonMoive(id)
+    console.log('data',data)
+    if(data && data.cast) setPersonMovie(data.cast)
+    //   console.log('person',data.cast)
+  }
   return (
     <ScrollView
       showsHorizontalScrollIndicator={false}
+      nestedScrollEnabled={true}
       contentContainerStyle={{paddingHorizontal: 5}}
       style={styles.container}>
       <SafeAreaView style={styles.header}>
@@ -48,7 +70,8 @@ const PersonScreen = ({}) => {
         <View style={styles.imgContent}>
           <View style={styles.img}>
             <Image
-              source={require('../../asset/images/person3.jpg')}
+              // source={require('../../asset/images/person3.jpg')}
+              source = {{uri: image342(person.profile_path)}}
               style={{
                 width: '100%',
                 height: '100%',
@@ -57,8 +80,8 @@ const PersonScreen = ({}) => {
           </View>
         </View>
         <View style={styles.title}>
-          <Text style={styles.name}>Robert Downey Jr.</Text>
-          <Text style={styles.andress}>New York , USA</Text>
+          <Text style={styles.name}>{person?.name}</Text>
+          <Text style={styles.andress}>{person?.place_of_birth}</Text>
         </View>
         <View style={styles.info}>
           <View style={styles.infoContent}>
@@ -67,29 +90,21 @@ const PersonScreen = ({}) => {
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoTitle}>Birthday</Text>
-            <Text style={styles.infoText}>22-6-2000</Text>
+            <Text style={styles.infoText}>{person.birthday}</Text>
           </View>
           <View style={styles.infoContent}>
             <Text style={styles.infoTitle}>Know for</Text>
-            <Text style={styles.infoText}>Acting</Text>
+            <Text style={styles.infoText}>{person.known_for_department}</Text>
           </View>
           <View style={{paddingHorizontal: 4, alignItems: 'center'}}>
             <Text style={styles.infoTitle}>Popularity</Text>
-            <Text style={styles.infoText}>64.23</Text>
+            <Text style={styles.infoText}>{person?.popularity?.toFixed(2)}%</Text>
           </View>
         </View>
         <View style={styles.detail}>
           <Text style={styles.detailTitle}>Biography</Text>
           <Text style={styles.detailText}>
-            Robert John Downey Jr. (born April 4, 1965) is an American actor.
-            His films as a leading actor have grossed over $14 billion
-            worldwide, making him one of the highest-grossing actors of all
-            time. Downey's career has been characterized by some early success,
-            a period of drug-related problems and run-ins with the law, and a
-            surge in popular and commercial success in the 2000s. In 2008,
-            Downey was named by Time magazine as one of the 100 most influential
-            people in the world. From 2013 to 2015, he was listed by Forbes as
-            Hollywood's highest-paid actor.
+            {person?.biography || 'N/A'}
           </Text>
         </View>
         <MovieList title="Movies" hiddenSeeAll = {true} data={personMoive} />
@@ -101,7 +116,7 @@ const PersonScreen = ({}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#121211',
-    // flex: 1,
+    flex: 1
     // flexDirection: 'column',
   },
   header: {
@@ -201,4 +216,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PersonScreen; // Đảm bảo export đúng
+export default PersonScreen;

@@ -5,7 +5,7 @@ import MovieScreen from '../screens/movieScreen';
 import PersonScreen from '../screens/personScreen';
 
 const Stack = createStackNavigator();
-
+ 
 const AppNavigation = () => {
   return (
     <Stack.Navigator

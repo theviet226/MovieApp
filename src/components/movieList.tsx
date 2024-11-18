@@ -9,23 +9,23 @@ import {
   Dimensions,
 } from 'react-native';
 import React from 'react';
-// import {useNavigation} from '@react-navigation/native';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { image185 } from '../api/moviedb';
 
 type MovieListProps = {
-  data: number[];
+  data: { poster_path: string; title: string , id : number}[]; 
   title: string;
-  hiddenSeeAll : boolean;
+  hiddenSeeAll: boolean;
 };
 
 type RootStackParamList = {
-  Movie: {item: number};
+  Movie: { item: { poster_path: string; title: string,id : number } };
 };
-var {width, height} = Dimensions.get('window');
 
-const MovieList: React.FC<MovieListProps> = ({title, data, hiddenSeeAll}) => {
-  let movieName = 'Iron man 3';
+const { width, height } = Dimensions.get('window');
+
+const MovieList: React.FC<MovieListProps> = ({ title, data, hiddenSeeAll }) => {
   const navigation =
     useNavigation<StackNavigationProp<RootStackParamList, 'Movie'>>();
 
@@ -41,15 +41,17 @@ const MovieList: React.FC<MovieListProps> = ({title, data, hiddenSeeAll}) => {
       </View>
       <ScrollView
         horizontal
+        nestedScrollEnabled={true}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingHorizontal: 15}}>
-        {data.map((item: number, index: number) => (
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        style={{ flexGrow: 0 }}>
+        {data.map((item, index) => (
           <TouchableWithoutFeedback
             key={index}
-            onPress={() => navigation.push('Movie', {item})}>
+            onPress={() => navigation.push('Movie', { item })}>
             <View style={styles.image}>
               <Image
-                source={require('../../asset/images/poster1.webp')}
+                source={{ uri: image185(item.poster_path) }}
                 style={{
                   width: width * 0.33,
                   height: height * 0.22,
@@ -57,9 +59,7 @@ const MovieList: React.FC<MovieListProps> = ({title, data, hiddenSeeAll}) => {
                 }}
               />
               <Text style={styles.titleMovie}>
-                {movieName.length > 13
-                  ? movieName.slice(0, 14) + '...'
-                  : movieName}
+                {item.title?.length > 13 ? item.title.slice(0, 14) + '...' : item.title}
               </Text>
             </View>
           </TouchableWithoutFeedback>
@@ -72,6 +72,7 @@ const MovieList: React.FC<MovieListProps> = ({title, data, hiddenSeeAll}) => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 32,
+    flex: 1
   },
   content: {
     flexDirection: 'row',
@@ -83,8 +84,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
-    // marginLeft: 10,
-    marginBottom : 12
+    marginBottom: 12,
   },
   text: {
     fontSize: 18,

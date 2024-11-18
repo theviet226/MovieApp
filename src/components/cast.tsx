@@ -5,14 +5,19 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { image185 } from '../api/moviedb';
 
 type CastProps = {
-  cast: number[];
+  cast: string[];
 };
+type RootStackParamCast = {
+  Person : {person : number}
+}
 const Cast: React.FC<CastProps> = ({cast}) => {
   const personName = 'Robert Downey Jr.';
   const characterName = 'Tony Stark / Iron Man';
-  const navigation = useNavigation()
+  const navigation = useNavigation<StackNavigationProp<RootStackParamCast>>()
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Top Cast</Text>
@@ -26,18 +31,19 @@ const Cast: React.FC<CastProps> = ({cast}) => {
               <View style={styles.imgContent}>
                 <Image
                   style={styles.image}
-                  source={require('../../asset/images/person3.jpg')}
+                  // source={require('../../asset/images/person3.jpg')}
+                  source={{uri: image185(person?.profile_path)}}
                 />
               </View>
               <Text style={styles.character}>
-                {characterName.length > 10
-                  ? characterName.slice(0, 10) + '...'
-                  : characterName}
+                {person?.character.length > 8
+                  ? person.character.slice(0, 8) + '...'
+                  : person.character}
               </Text>
               <Text style={styles.person}>
-                {personName.length > 10
-                  ? personName.slice(0, 10) + '...'
-                  : personName}
+                {person?.original_name.length > 8
+                  ? person.original_name.slice(0, 8) + '...'
+                  : person.original_name}
               </Text>
             </TouchableWithoutFeedback>
           );
@@ -54,15 +60,17 @@ const styles = StyleSheet.create({
   },
   person: {
     marginBottom: 4,
-    marginRight: 16,
-    fontSize: 16,
+    marginRight: 12,
+    fontSize: 14,
     color: '#fff',
+    textAlign : 'center'
   },
   character: {
     marginBottom: 4,
-    marginRight: 16,
-    fontSize: 16,
+    marginRight: 12,
+    fontSize: 14,
     color: '#acafb5',
+    textAlign : 'center'
   },
   title: {
     fontSize: 22,
@@ -79,6 +87,7 @@ const styles = StyleSheet.create({
     alignItems : 'center',
     borderColor: '#6b7280',
     borderWidth : 1,
+    marginRight : 20
   },
   image: {
     width: '100%',

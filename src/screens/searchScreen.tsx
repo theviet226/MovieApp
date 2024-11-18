@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   TextInput,
   ScrollView,
@@ -9,51 +8,82 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import React, {useState} from 'react';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import React, { useCallback, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import debounce from 'lodash.debounce';
+import { image342, searchMovie } from '../api/moviedb';
 
-var {width, height} = Dimensions.get('window');
+var { width, height } = Dimensions.get('window');
+
+interface Movie {
+  title: string;
+  poster_path: string;
+  id: number;
+}
 
 const SearchScreen = () => {
-  const [results, setResults] = useState([1, 2, 3, 4, 5, 6]);
-  let movieName = 'Avenger : Endgameeeeeeeeeeeeeeeeeeeeeeee'
+  const [results, setResults] = useState<Movie[]>([]);
+
+  const handleSearch = (value: string) => {
+    if (value && value.length > 1) {
+      searchMovie({
+        query: value,
+        include_adult: 'false',
+        language: 'en-US',
+        page: '1',
+      }).then((data) => {
+        if (data && data.results) setResults(data.results);
+      });
+    } else {
+      setResults([]);
+    }
+  };
+
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.input}>
         <TextInput
+          onChangeText={handleTextDebounce}
           placeholder="Search Movie"
           placeholderTextColor={'lightgray'}
           style={styles.textInput}
         />
       </View>
-      {
-        results.length > 0  ? (
-          <ScrollView
+      {results.length > 0 ? (
+        <ScrollView
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 15}}
+          contentContainerStyle={{ paddingHorizontal: 15 }}
           style={styles.content}>
           <Text style={styles.textResult}>Result({results.length})</Text>
           <View style={styles.result}>
-            {results.map((index: number, item: number) => {
+            {results.map((item: Movie) => {
               return (
-                <TouchableNativeFeedback key={index}>
+                <TouchableNativeFeedback key={item.id}>
                   <View style={styles.contentResult}>
                     <Image
-                      source={require('../../asset/images/poster.jpg')}
-                      style={{width: width * 0.44, height: height * 0.33 , borderRadius : 24}}
+                      source={{ uri: image342(item.poster_path) }}
+                      style={{
+                        width: width * 0.44,
+                        height: height * 0.33,
+                        borderRadius: 24,
+                      }}
                     />
-                    <Text style={styles.textMoive}>{movieName.length >18 ? movieName.slice(0,18) + '...' : movieName}</Text>
+                    <Text style={styles.textMoive}>
+                      {item.title.length > 18
+                        ? item.title.slice(0, 18) + '...'
+                        : item.title}
+                    </Text>
                   </View>
                 </TouchableNativeFeedback>
               );
             })}
           </View>
         </ScrollView>
-        ) : (
-          <Text>not found</Text>
-        )
-      }
-     
+      ) : (
+        <Text>not found</Text>
+      )}
     </SafeAreaView>
   );
 };
@@ -80,7 +110,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-    // backgroundColor : 'red'
   },
   content: {
     marginBottom: 12,
@@ -89,7 +118,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-    marginBottom : 16
+    marginBottom: 16,
   },
   result: {
     flexDirection: 'row',
@@ -97,14 +126,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   contentResult: {
-    marginBottom : 14
+    marginBottom: 14,
   },
   textMoive: {
     fontSize: 17,
     color: '#acafb5',
     marginLeft: 4,
-    textAlign: 'center', 
-  }
+    textAlign: 'center',
+  },
 });
 
 export default SearchScreen;

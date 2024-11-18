@@ -15,24 +15,50 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
+import {
+  fetchMoiveDetail,
+  fetchMovieCredit,
+  fetchMovieSimilar,
+  image500,
+} from '../api/moviedb';
 
 var {width, height} = Dimensions.get('window');
 
 const MovieScreen = () => {
-  const {params: item} = useRoute();
+  const {params} = useRoute();
+  const item = params?.item;
+
   const [isFavorite, setIsFavorite] = useState(false);
   const navigation = useNavigation();
-  const [cast, setCast] = useState([1,2,3,4,5])
-  const [similatorMovie, setSimilatorMovie] = useState([1,2,3,4,5]);
+  const [cast, setCast] = useState([]);
 
-  
+  const [similatorMovie, setSimilatorMovie] = useState([]);
+  const [movie, setMovie] = useState({});
+
   useEffect(() => {
-    ///api
+    console.log('id', item.id);
+    getMovieDetail(item.id);
+    getMovieCredti(item.id);
+    getMovieSimilar(item.id);
   }, [item]);
+  const getMovieDetail = async (id: number) => {
+    const data = await fetchMoiveDetail(id);
+    if (data) setMovie(data);
+  };
+  const getMovieCredti = async (id: number) => {
+    const data = await fetchMovieCredit(id);
+    if (data && data.cast) setCast(data.cast);
+  };
+  const getMovieSimilar = async (id: number) => {
+    const data = await fetchMovieSimilar(id);
+    if (data && data.results) setSimilatorMovie(data.results);
+    // console.log('haha', similatorMovie);
+  };
   const toggleFavorite = () => setIsFavorite(!isFavorite);
   const movieName = 'Avengers : Endgame';
   return (
     <ScrollView
+      nestedScrollEnabled={true}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{paddingBottom: 10}}
       style={styles.container}>
@@ -58,7 +84,7 @@ const MovieScreen = () => {
         </SafeAreaView>
         <View>
           <Image
-            source={require('../../asset/images/poster.jpg')}
+            source={{uri: image500(movie?.poster_path) || fallbackPersonImage}}
             style={{width, height: height * 0.55}}
           />
           <LinearGradient
@@ -77,25 +103,35 @@ const MovieScreen = () => {
 
       {/* movie detail */}
       <View style={styles.detail}>
-        <Text style={styles.title}>{movieName}</Text>
-        <Text style={styles.status}>Released • 2019 • 181 min</Text>
-
-        <View style={styles.genres}>
-          <Text style={styles.detailGeners}>Action •</Text>
-          <Text style={styles.detailGeners}>Thrill •</Text>
-          <Text style={styles.detailGeners}>Comedy</Text>
-        </View>
-
-        <Text style={styles.overview}>
-          After the devastating events of Avengers: Infinity war (2018), the
-          universe is in ruins. With the help of remaining allies, the Avengers
-          assemble once more in order to reverse Thanos' actions and restore
-          balance to the universe.
+        <Text style={styles.title}>{movie?.title}</Text>
+        <Text style={styles.status}>
+          {movie?.status} • {movie?.release_date?.split('-')[0]} •{' '}
+          {movie?.runtime} min
         </Text>
 
-        <Cast cast= {cast} />
+        <View style={styles.genres}>
+          {movie?.genres?.map((genre: {name: string}, index: number) => {
+            let showDot = index + 1 != movie.genres.length;
+            return (
+              <Text key={index} style={styles.detailGeners}>
+                {genre?.name} {showDot ? '•' : null}
+              </Text>
+            );
+          })}
+          {/* <Text style={styles.detailGeners}>Action •</Text>
+          <Text style={styles.detailGeners}>Thrill •</Text>
+          <Text style={styles.detailGeners}>Comedy</Text> */}
+        </View>
 
-        <MovieList title='Similator Movie' hiddenSeeAll={true} data={similatorMovie}/>
+        <Text style={styles.overview}>{movie?.overview}</Text>
+
+        <Cast cast={cast} />
+
+        <MovieList
+          title="Similator Movie"
+          hiddenSeeAll={true}
+          data={similatorMovie}
+        />
       </View>
     </ScrollView>
   );
@@ -105,6 +141,7 @@ const styles = StyleSheet.create({
   container: {
     // flexDirection: 'row',
     backgroundColor: '#121211',
+    flex: 1,
   },
   content: {
     width: '100%',
@@ -173,7 +210,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     letterSpacing: 0.05,
     marginHorizontal: 14,
-    width: '100%', 
+    width: '100%',
   },
 });
 
