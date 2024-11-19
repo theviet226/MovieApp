@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Button,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,31 +20,36 @@ import {
   fetchMoiveDetail,
   fetchMovieCredit,
   fetchMovieSimilar,
+  fetchMovieTrailer,
   image500,
 } from '../api/moviedb';
+import Trailer from '../components/trailer';
+import Loading from '../components/loading';
+import PopularityCard from '../components/populartyCard';
 
 var {width, height} = Dimensions.get('window');
 
-const MovieScreen = () => {
-  const {params} = useRoute();
-  const item = params?.item;
+const MovieScreen: React.FC<{route: any}> = ({route}) => {
+  const item = route?.params?.item;
 
   const [isFavorite, setIsFavorite] = useState(false);
   const navigation = useNavigation();
   const [cast, setCast] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [similatorMovie, setSimilatorMovie] = useState([]);
-  const [movie, setMovie] = useState({});
-
+  const [movie, setMovie] = useState<any>({});
   useEffect(() => {
     console.log('id', item.id);
     getMovieDetail(item.id);
     getMovieCredti(item.id);
     getMovieSimilar(item.id);
+    // getMoiveTrailer(item.id)
   }, [item]);
   const getMovieDetail = async (id: number) => {
     const data = await fetchMoiveDetail(id);
     if (data) setMovie(data);
+    setLoading(false)
   };
   const getMovieCredti = async (id: number) => {
     const data = await fetchMovieCredit(id);
@@ -54,6 +60,7 @@ const MovieScreen = () => {
     if (data && data.results) setSimilatorMovie(data.results);
     // console.log('haha', similatorMovie);
   };
+  const score = Math.round((movie?.vote_average) *10)
   const toggleFavorite = () => setIsFavorite(!isFavorite);
   const movieName = 'Avengers : Endgame';
   return (
@@ -77,33 +84,38 @@ const MovieScreen = () => {
           <TouchableOpacity onPress={toggleFavorite} style={styles.icon}>
             <Icon
               name="heart"
-              color={isFavorite ? '#eab308' : '#fff'}
+              color={isFavorite ? 'red' : '#fff'}
               size={35}
             />
           </TouchableOpacity>
         </SafeAreaView>
-        <View>
-          <Image
-            source={{uri: image500(movie?.poster_path) || fallbackPersonImage}}
-            style={{width, height: height * 0.55}}
-          />
-          <LinearGradient
-            colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
-            style={{
-              width,
-              height: height * 0.3,
-              position: 'absolute',
-              bottom: 0,
-            }}
-            start={{x: 0.5, y: 0}}
-            end={{x: 0.5, y: 1}}
-          />
-        </View>
+        {loading ? (
+          <Loading />
+        ) : (
+          <View>
+            <Image
+              source={{uri: image500(movie?.poster_path)}}
+              style={{width, height: height * 0.55}}
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+              style={{
+                width,
+                height: height * 0.3,
+                position: 'absolute',
+                bottom: 0,
+              }}
+              start={{x: 0.5, y: 0}}
+              end={{x: 0.5, y: 1}}
+            />
+          </View>
+        )}
       </View>
 
-      {/* movie detail */}
       <View style={styles.detail}>
-        <Text style={styles.title}>{movie?.title}</Text>
+        <Text style={styles.name}>{movie?.title} </Text>
+        <PopularityCard popularity={score}/>
+
         <Text style={styles.status}>
           {movie?.status} • {movie?.release_date?.split('-')[0]} •{' '}
           {movie?.runtime} min
@@ -118,21 +130,23 @@ const MovieScreen = () => {
               </Text>
             );
           })}
-          {/* <Text style={styles.detailGeners}>Action •</Text>
-          <Text style={styles.detailGeners}>Thrill •</Text>
-          <Text style={styles.detailGeners}>Comedy</Text> */}
         </View>
+        
 
         <Text style={styles.overview}>{movie?.overview}</Text>
 
         <Cast cast={cast} />
-
+        <View>
+          <Text style={styles.title}>Trailer</Text>
+          <Trailer movieId={movie.id} />
+        </View>
         <MovieList
           title="Similator Movie"
           hiddenSeeAll={true}
           data={similatorMovie}
         />
       </View>
+      {/* movie detail */}
     </ScrollView>
   );
 };
@@ -164,7 +178,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   back: {
-    backgroundColor: '#eab308',
+    backgroundColor: 'red',
     padding: 6,
     paddingRight: 10,
     borderRadius: 8,
@@ -174,13 +188,21 @@ const styles = StyleSheet.create({
     // marginBottom: 12,
     // width: 400,
   },
-  title: {
+  name: {
     fontSize: 30,
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
     letterSpacing: 1,
+    marginBottom: 0,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 12,
+    marginLeft: 10,
+    letterSpacing : 1
   },
   status: {
     color: '#acafb5',

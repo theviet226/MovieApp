@@ -85,10 +85,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 12,
+    letterSpacing : 1
   },
   text: {
     fontSize: 18,
-    color: '#eab308',
+    color: 'red',
+    fontWeight : 'bold'
   },
   titleMovie: {
     fontSize: 17,

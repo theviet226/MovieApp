@@ -11,6 +11,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import TrendingMovies from '../components/trendingMovies';
 import MovieList from '../components/movieList';
 import {
+  fetchNowPlayingMOive,
   fetchTopRatedMovie,
   fetchTrendingMovie,
   fetchUpcomingMovie,
@@ -21,18 +22,21 @@ const HomeScreen: React.FC = () => {
   const [trending, setTrending] = useState([]);
   const [upComing, setUpComing] = useState([]);
   const [topRated, setTopRated] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [nowPlaying, setNowPlaying] = useState([])
 
   useEffect(() => {
     getTrendingMovie();
     getUpComingMovie();
     getTopRatedMovie();
+    getNowPlaying();
   }, []);
   const getTrendingMovie = async () => {
     const data = await fetchTrendingMovie();
     // console.log('trend' , data)
 
     if (data && data.results) setTrending(data.results);
+    setLoading(false)
   };
   const getUpComingMovie = async () => {
     const data = await fetchUpcomingMovie();
@@ -46,6 +50,11 @@ const HomeScreen: React.FC = () => {
 
     if (data && data.results) setTopRated(data.results);
   };
+  const getNowPlaying = async () => {
+    const data = await fetchNowPlayingMOive()
+    // console.log('now',data)
+    if (data && data.results) setNowPlaying(data.results)
+  }
 
   return (
     <View style={styles.container}>
@@ -59,13 +68,13 @@ const HomeScreen: React.FC = () => {
       </SafeAreaView>
       {loading ? (
         <Loading />
-        // <Text>1</Text>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{paddingBottom: 10}}>
           {trending?.length > 0 && <TrendingMovies data={trending} />}
 
+          <MovieList hiddenSeeAll = {false} title="Now playing" data={nowPlaying}/>
           <MovieList hiddenSeeAll={false} title="Upcoming" data={upComing} />
           <MovieList hiddenSeeAll={false} title="Toprated" data={topRated} />
         </ScrollView>
@@ -91,7 +100,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   m: {
-    color: '#eab308',
+    color: 'red',
   },
 });
 

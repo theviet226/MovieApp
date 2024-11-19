@@ -4,6 +4,8 @@ import HomeScreen from '../screens/homeScreen';
 import MovieScreen from '../screens/movieScreen';
 import PersonScreen from '../screens/personScreen';
 
+// import LoginScreen from '../screens/loginScreen';
+
 const Stack = createStackNavigator();
  
 const AppNavigation = () => {
@@ -18,6 +20,7 @@ const AppNavigation = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Movie" component={MovieScreen} />
       <Stack.Screen name="Person" component={PersonScreen}/>
+      {/* <Stack.Screen name="Login" component={LoginScreen}/> */}
     </Stack.Navigator>
   );
 };

@@ -4,22 +4,28 @@ const apiBaseUrl = `https://api.themoviedb.org/3`;
 const token =
   'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMGFjNDZhMTk2YTYyNDAxMDQ5OTczNWU5ZGQ3ZjkzNCIsIm5iZiI6MTczMTg5NTAyNS45Mjc4NDQ1LCJzdWIiOiI2NzMzMmQ1MzA5YjI1NmQwOTQ2MWI2OTEiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.IVMLNwmVyFuD8wr4s2BLSN1XUGrdwqzBeJFJv2Nb10g';
 
-const trendingMovieEndPoint = `${apiBaseUrl}/trending/movie/day?language=en-US`;
-const topRatedMovieEndPoint = `${apiBaseUrl}/movie/top_rated?language=en-US`;
-const upcomingMovieEndPoint = `${apiBaseUrl}/movie/upcoming?language=en-US`;
-const searchMovieEndPoint =  `${apiBaseUrl}/search/movie?language=en-US`
+const eng = `language=en-US`;
+const trendingMovieEndPoint = `${apiBaseUrl}/trending/movie/day?${eng}`;
+const topRatedMovieEndPoint = `${apiBaseUrl}/movie/top_rated?${eng}`;
+const upcomingMovieEndPoint = `${apiBaseUrl}/movie/upcoming?${eng}`;
+const searchMovieEndPoint = `${apiBaseUrl}/search/movie?${eng}`;
+const nowPlayingMovieEndPoint = `${apiBaseUrl}/movie/now_playing?${eng}&page=1`;
 
 const movieDetailsEndPonint = (id: number) =>
-  `${apiBaseUrl}/movie/${id}?language=en-US`;
+  `${apiBaseUrl}/movie/${id}?${eng}`;
 const movieCreditsEndPoint = (id: number) =>
-  `${apiBaseUrl}/movie/${id}/credits?language=en-US`;
+  `${apiBaseUrl}/movie/${id}/credits?${eng}`;
 const movieSimilarEndPoint = (id: number) =>
-  `${apiBaseUrl}/movie/${id}/similar?language=en-US`;
+  `${apiBaseUrl}/movie/${id}/similar?${eng}`;
+const movieTrailerEndPonit = (id: number) =>
+  `${apiBaseUrl}/movie/${id}/videos?${eng}`;
 
 // const searchMovieEndPoint = () => `${apiBaseUrl}/search/movie`
 
-const personDetailEndPoint = (id:number) => `${apiBaseUrl}/person/${id}?language=en-US`
-const personMovieEndPoint = (id:number) => `${apiBaseUrl}/person/${id}/movie_credits?language=en-US`
+const personDetailEndPoint = (id: number) =>
+  `${apiBaseUrl}/person/${id}?${eng}`;
+const personMovieEndPoint = (id: number) =>
+  `${apiBaseUrl}/person/${id}/movie_credits?${eng}`;
 
 export const image500 = (path: any) => `https://image.tmdb.org/t/p/w500${path}`;
 export const image342 = (path: any) => `https://image.tmdb.org/t/p/w342${path}`;
@@ -52,6 +58,9 @@ export const fetchTrendingMovie = () => {
 export const fetchTopRatedMovie = () => {
   return apiCall(topRatedMovieEndPoint, {});
 };
+export const fetchNowPlayingMOive = () => {
+  return apiCall(nowPlayingMovieEndPoint, {});
+};
 
 export const fetchUpcomingMovie = () => {
   return apiCall(upcomingMovieEndPoint, {});
@@ -65,12 +74,15 @@ export const fetchMovieCredit = (id: number) => {
 export const fetchMovieSimilar = (id: number) => {
   return apiCall(movieSimilarEndPoint(id), {});
 };
-export const fetchPersonDetail = (id : number) => {
-    return apiCall(personDetailEndPoint(id),{})
-}
-export const fetchPersonMoive = (id:number) => {
-    return apiCall(personMovieEndPoint(id),{})
-}
-export const searchMovie = (params : any) => {
-    return apiCall(searchMovieEndPoint, params)
-}
+export const fetchPersonDetail = (id: number) => {
+  return apiCall(personDetailEndPoint(id), {});
+};
+export const fetchPersonMoive = (id: number) => {
+  return apiCall(personMovieEndPoint(id), {});
+};
+export const searchMovie = (params: any) => {
+  return apiCall(searchMovieEndPoint, params);
+};
+export const fetchMovieTrailer = (id: number) => {
+  return apiCall(movieTrailerEndPonit(id), {});
+};

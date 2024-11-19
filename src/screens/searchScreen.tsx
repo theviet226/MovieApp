@@ -12,6 +12,7 @@ import React, { useCallback, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import debounce from 'lodash.debounce';
 import { image342, searchMovie } from '../api/moviedb';
+import Loading from '../components/loading';
 
 var { width, height } = Dimensions.get('window');
 
@@ -23,19 +24,24 @@ interface Movie {
 
 const SearchScreen = () => {
   const [results, setResults] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true)
 
   const handleSearch = (value: string) => {
     if (value && value.length > 1) {
+      setLoading(true)
       searchMovie({
         query: value,
         include_adult: 'false',
         language: 'en-US',
         page: '1',
       }).then((data) => {
+        setLoading(false)
         if (data && data.results) setResults(data.results);
+        
       });
     } else {
       setResults([]);
+      setLoading(false)
     }
   };
 
@@ -51,39 +57,43 @@ const SearchScreen = () => {
           style={styles.textInput}
         />
       </View>
-      {results.length > 0 ? (
-        <ScrollView
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 15 }}
-          style={styles.content}>
-          <Text style={styles.textResult}>Result({results.length})</Text>
-          <View style={styles.result}>
-            {results.map((item: Movie) => {
-              return (
-                <TouchableNativeFeedback key={item.id}>
-                  <View style={styles.contentResult}>
-                    <Image
-                      source={{ uri: image342(item.poster_path) }}
-                      style={{
-                        width: width * 0.44,
-                        height: height * 0.33,
-                        borderRadius: 24,
-                      }}
-                    />
-                    <Text style={styles.textMoive}>
-                      {item.title.length > 18
-                        ? item.title.slice(0, 18) + '...'
-                        : item.title}
-                    </Text>
-                  </View>
-                </TouchableNativeFeedback>
-              );
-            })}
-          </View>
-        </ScrollView>
-      ) : (
-        <Text>not found</Text>
-      )}
+      {loading ? (
+        <Loading/>
+      ) : 
+    results.length > 0 ? (
+      <ScrollView
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        style={styles.content}>
+        <Text style={styles.textResult}>Result({results.length})</Text>
+        <View style={styles.result}>
+          {results.map((item: Movie) => {
+            return (
+              <TouchableNativeFeedback key={item.id}>
+                <View style={styles.contentResult}>
+                  <Image
+                    source={{ uri: image342(item.poster_path) }}
+                    style={{
+                      width: width * 0.44,
+                      height: height * 0.33,
+                      borderRadius: 24,
+                    }}
+                  />
+                  <Text style={styles.textMoive}>
+                    {item.title.length > 18
+                      ? item.title.slice(0, 18) + '...'
+                      : item.title}
+                  </Text>
+                </View>
+              </TouchableNativeFeedback>
+            );
+          })}
+        </View>
+      </ScrollView>
+    ) : (
+      <Text>not found</Text>
+    )
+    }
     </SafeAreaView>
   );
 };

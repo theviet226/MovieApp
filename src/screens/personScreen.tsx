@@ -12,102 +12,112 @@ import {
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MovieList from '../components/movieList';
-import { fetchPersonDetail, fetchPersonMoive, image342 } from '../api/moviedb';
+import {fetchPersonDetail, fetchPersonMoive, image342} from '../api/moviedb';
+import Loading from '../components/loading';
 
 type RootStackParamList = {
-  person : {id:number}
-}
+  person: {id: number};
+};
 
 const PersonScreen = ({}) => {
   // const {person:item} = route.params;
   const route = useRoute<RouteProp<RootStackParamList, 'Person'>>();
-  const { person: item } = route.params;
+  const {person: item} = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const navigation = useNavigation();
-  const [person,setPerson] = useState([])
+  const [person, setPerson] = useState([]);
   const [personMoive, setPersonMovie] = useState([]);
+  const [loading, setLoading] = useState(true);
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
   };
   useEffect(() => {
-    getPersonDetail(item.id)
-    getPersonMoive(item.id)
-    console.log('id',item.id)
-  },[item])
-  const getPersonDetail = async (id:number) => {
-    const data = await fetchPersonDetail(id)
-    if(data) setPerson(data)
-  } 
-  const getPersonMoive = async (id:number) => {
-    const data = await fetchPersonMoive(id)
-    console.log('data',data)
-    if(data && data.cast) setPersonMovie(data.cast)
+    getPersonDetail(item.id);
+    getPersonMoive(item.id);
+    console.log('id', item.id);
+  }, [item]);
+  const getPersonDetail = async (id: number) => {
+    const data = await fetchPersonDetail(id);
+    if (data) setPerson(data);
+    setLoading(false);
+  };
+  const getPersonMoive = async (id: number) => {
+    const data = await fetchPersonMoive(id);
+    if (data && data.cast) setPersonMovie(data.cast);
     //   console.log('person',data.cast)
-  }
+  };
   return (
     <ScrollView
       showsHorizontalScrollIndicator={false}
-      nestedScrollEnabled={true}
       contentContainerStyle={{paddingHorizontal: 5}}
       style={styles.container}>
-      <SafeAreaView style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.icon}>
-          <Icon
-            style={styles.back}
-            name="chevron-left"
-            color={'#fff'}
-            size={20}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={toggleFavorite} style={styles.icon}>
-          <Icon name="heart" color={isFavorite ? 'red' : '#fff'} size={30} />
-        </TouchableOpacity>
-      </SafeAreaView>
-
-      <View>
-        <View style={styles.imgContent}>
-          <View style={styles.img}>
-            <Image
-              // source={require('../../asset/images/person3.jpg')}
-              source = {{uri: image342(person.profile_path)}}
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
+      <View style={styles.content}>
+        <SafeAreaView style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.icon}>
+            <Icon
+              style={styles.back}
+              name="chevron-left"
+              color={'#fff'}
+              size={20}
             />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleFavorite} style={styles.icon}>
+            <Icon name="heart" color={isFavorite ? 'red' : '#fff'} size={30} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        {loading ? (
+          <Loading />
+        ) : (
+          <View>
+            <View style={styles.imgContent}>
+              <View style={styles.img}>
+                <Image
+                  // source={require('../../asset/images/person3.jpg')}
+                  source={{uri: image342(person?.profile_path)}}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
+              </View>
+            </View>
+            <View style={styles.title}>
+              <Text style={styles.name}>{person?.name}</Text>
+              <Text style={styles.andress}>{person?.place_of_birth}</Text>
+            </View>
+            <View style={styles.info}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoTitle}>Gender</Text>
+                <Text style={styles.infoText}>Mele</Text>
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoTitle}>Birthday</Text>
+                <Text style={styles.infoText}>{person.birthday}</Text>
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoTitle}>Know for</Text>
+                <Text style={styles.infoText}>
+                  {person.known_for_department}
+                </Text>
+              </View>
+              <View style={{paddingHorizontal: 4, alignItems: 'center'}}>
+                <Text style={styles.infoTitle}>Popularity</Text>
+                <Text style={styles.infoText}>
+                  {person?.popularity?.toFixed(2)}%
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detail}>
+              <Text style={styles.detailTitle}>Biography</Text>
+              <Text style={styles.detailText}>
+                {person?.biography || 'N/A'}
+              </Text>
+            </View>
+            <MovieList title="Movies" hiddenSeeAll={true} data={personMoive} />
           </View>
-        </View>
-        <View style={styles.title}>
-          <Text style={styles.name}>{person?.name}</Text>
-          <Text style={styles.andress}>{person?.place_of_birth}</Text>
-        </View>
-        <View style={styles.info}>
-          <View style={styles.infoContent}>
-            <Text style={styles.infoTitle}>Gender</Text>
-            <Text style={styles.infoText}>Mele</Text>
-          </View>
-          <View style={styles.infoContent}>
-            <Text style={styles.infoTitle}>Birthday</Text>
-            <Text style={styles.infoText}>{person.birthday}</Text>
-          </View>
-          <View style={styles.infoContent}>
-            <Text style={styles.infoTitle}>Know for</Text>
-            <Text style={styles.infoText}>{person.known_for_department}</Text>
-          </View>
-          <View style={{paddingHorizontal: 4, alignItems: 'center'}}>
-            <Text style={styles.infoTitle}>Popularity</Text>
-            <Text style={styles.infoText}>{person?.popularity?.toFixed(2)}%</Text>
-          </View>
-        </View>
-        <View style={styles.detail}>
-          <Text style={styles.detailTitle}>Biography</Text>
-          <Text style={styles.detailText}>
-            {person?.biography || 'N/A'}
-          </Text>
-        </View>
-        <MovieList title="Movies" hiddenSeeAll = {true} data={personMoive} />
+        )}
       </View>
     </ScrollView>
   );
@@ -116,8 +126,11 @@ const PersonScreen = ({}) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#121211',
-    flex: 1
+    // flex: 1,
     // flexDirection: 'column',
+  },
+  content: {
+width: '100%'
   },
   header: {
     zIndex: 20,
@@ -133,7 +146,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   back: {
-    backgroundColor: '#eab308',
+    backgroundColor: 'red',
     padding: 6,
     paddingRight: 10,
     borderRadius: 8,
@@ -170,7 +183,7 @@ const styles = StyleSheet.create({
   },
   andress: {
     color: '#acafb5',
-    fontSize: 20,
+    fontSize: 18,
     textAlign: 'center',
     marginBottom: 12,
   },
@@ -208,7 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom : 12
+    marginBottom: 12,
   },
   detailText: {
     color: '#acafb5',

@@ -44,7 +44,7 @@ const TrendingMovies: React.FC<TrendingMoviesProps> = ({data}) => {
             renderItem={({item}) => (
               <MovieCard item={item} handleClick={handleClick} />
             )}
-            firstItem={1}
+            firstItem={0}
             inactiveSlideOpacity={0.6}
             sliderWidth={width}
             itemWidth={width * 0.62}
